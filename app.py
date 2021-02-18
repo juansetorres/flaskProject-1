@@ -70,7 +70,8 @@ class Concurso_Schema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Concurso
 
-    include_fk = True    id = ma.auto_field()
+    include_fk = True
+    id = ma.auto_field()
     nombre = ma.auto_field()
     url = ma.auto_field()
     fechaIni = ma.auto_field()
@@ -281,7 +282,8 @@ class RecursoUnConcurso(Resource):
 class RecursoParticipacion(Resource):
 
 
-def post(self,id_usuario,id_concurso):
+
+    def post(self,id_usuario,id_concurso):
         post_schema = Concurso_Schema()
 
         posts_schema = Concurso_Schema(many=True)
