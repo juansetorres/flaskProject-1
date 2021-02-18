@@ -19,7 +19,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
 Base = declarative_base()
-
+#Participacion model
 class Participacion(db.Model):
     id_usuario = db.Column(db.Integer, ForeignKey('usuario.id'),primary_key = True)
 
@@ -30,7 +30,7 @@ class Participacion(db.Model):
     fechaPost = db.Column(db.DateTime)
 
     estado = db.Column(db.String(50))
-
+#Usuario model
 class Usuario(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
@@ -42,9 +42,9 @@ class Usuario(db.Model):
 
     rol = db.Column(db.String(50))
 
-    children = relationship("Concurso")
+    concursos = db.relationship('Concurso', backref='usuario', lazy=True)
 
-
+#concurso model
 class Concurso(db.Model):
 
     id = db.Column(db.Integer, primary_key = True)
@@ -65,43 +65,75 @@ class Concurso(db.Model):
 
     admin_id = Column(Integer, ForeignKey('usuario.id'))
 
-
+#Concurso Schema
 class Concurso_Schema(ma.Schema):
     class Meta:
-        fields = ("id", "nombre", "url", "fechaIni", "fechaFin", "value", "guion", "recomendaciones")
+        model = Concurso
+
+        include_fk = True
+
+    id = ma.auto_field()
+    nombre = ma.auto_field()
+    url = ma.auto_field()
+    fechaIni = ma.auto_field()
+    fechaFin = ma.auto_field()
+    value = ma.auto_field()
+    guion = ma.auto_field()
+    recomendaciones = ma.auto_field()
 
 
-post_schema = Concurso_Schema()
-
-posts_schema = Concurso_Schema(many=True)
-
-class Usuario_Schema(ma.Schema):
+#Usuario Schema
+class Usuario_Schema(ma.SQLAlchemyAutoSchema):
     class Meta:
-        fields = ("id", "nombre", "apellido", "pssw", "rol")
+        model = Usuario
 
-post_schema = Usuario_Schema()
+    id = ma.auto_field()
+    nombre = ma.auto_field()
+    apellido = ma.auto_field()
+    pssw = ma.auto_field()
+    rol = ma.auto_field()
+    concursos = ma.auto_field()
 
-posts_schema = Usuario_Schema(many=True)
 
+
+
+#Participacion Schema
 class Participacion_Schema(ma.Schema):
     class Meta:
-        fields = ("urlRecord", "fechaPost", "estado")
+        fields = ("id_usuario","id_concurso","urlRecord", "fechaPost", "estado")
 
-
-post_schema = Participacion_Schema()
-
-posts_schema = Participacion_Schema(many=True)
 
 api = Api(app)
-
-class RecursoListarConcursos(Resource):
+#Recurso para los usuarios
+class RecursoUsuarios(Resource):
 
     def get(self):
+        post_schema = Usuario_Schema()
 
-        concursos = Concurso.query.all()
+        posts_schema = Usuario_Schema(many=True)
 
-        return posts_schema.dump(concursos)
-    def post(self):
+
+        usuarios = Usuario.query.all()
+
+        return posts_schema.dump(usuarios)
+#Para crear un Concurso se ocupa el id del usuario y ver los usuarios
+class RecursoUsuarioConcurso(Resource):
+    post_schema = Usuario_Schema()
+
+    post_schema = Usuario_Schema(many=True)
+
+    def get(self,id):
+        post_schema = Usuario_Schema()
+
+        posts_schema = Usuario_Schema(many=True)
+
+        usuarios = Usuario.query.get_or_404(id)
+
+        return posts_schema.dump(usuarios)
+    def post(self,id):
+        post_schema = Concurso_Schema()
+
+        posts_schema = Concurso_Schema(many=True)
         nuevo_concurso = Concurso(
 
             nombre=request.json['nombre'],
@@ -116,7 +148,9 @@ class RecursoListarConcursos(Resource):
 
             guion=request.json['guion'],
 
-            recomendaciones=request.json['recomendaciones']
+            recomendaciones=request.json['recomendaciones'],
+
+            admin_id=id
 
         )
 
@@ -124,10 +158,31 @@ class RecursoListarConcursos(Resource):
 
         db.session.commit()
 
+
+
         return post_schema.dump(nuevo_concurso)
+#Recurso para ver todos los concursos
+class RecursoListaConcursos(Resource):
 
 
-api.add_resource(RecursoListarConcursos, '/concursos')
+    def get(self):
+        post_schema = Concurso_Schema()
+
+        posts_schema = Concurso_Schema(many=True)
+
+
+        concursos = Concurso.query.all()
+
+        return posts_schema.dump(concursos)
+
+
+
+
+#URLS
+api.add_resource(RecursoListaConcursos, '/concursos')
+api.add_resource(RecursoUsuarios, '/usuarios')
+api.add_resource(RecursoUsuarioConcurso, '/usuarios/<int:id>/concursos')
+
 
 
 
