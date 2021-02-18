@@ -3,6 +3,9 @@ from datetime import datetime
 import dateutil.parser
 
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import Table, Column, Integer, ForeignKey
+from sqlalchemy.orm import relationship
+from sqlalchemy.ext.declarative import declarative_base
 
 from flask_marshmallow import Marshmallow
 
@@ -15,7 +18,18 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
+Base = declarative_base()
 
+class Participacion(db.Model):
+    id_usuario = db.Column(db.Integer, ForeignKey('usuario.id'),primary_key = True)
+
+    id_concurso= db.Column(db.Integer, ForeignKey('concurso.id'),primary_key = True)
+
+    urlRecord=db.Column(db.String(255))
+
+    fechaPost = db.Column(db.DateTime)
+
+    estado = db.Column(db.String(50))
 
 class Usuario(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -25,6 +39,10 @@ class Usuario(db.Model):
     apellido = db.Column(db.String(50))
 
     pssw = db.Column(db.String(50))
+
+    rol = db.Column(db.String(50))
+
+    children = relationship("Concurso")
 
 
 class Concurso(db.Model):
@@ -45,6 +63,8 @@ class Concurso(db.Model):
 
     recomendaciones = db.Column(db.String(255))
 
+    admin_id = Column(Integer, ForeignKey('usuario.id'))
+
 
 class Concurso_Schema(ma.Schema):
     class Meta:
@@ -57,12 +77,20 @@ posts_schema = Concurso_Schema(many=True)
 
 class Usuario_Schema(ma.Schema):
     class Meta:
-        fields = ("id", "nombre", "apellido", "pssw")
-
+        fields = ("id", "nombre", "apellido", "pssw", "rol")
 
 post_schema = Usuario_Schema()
 
 posts_schema = Usuario_Schema(many=True)
+
+class Participacion_Schema(ma.Schema):
+    class Meta:
+        fields = ("urlRecord", "fechaPost", "estado")
+
+
+post_schema = Participacion_Schema()
+
+posts_schema = Participacion_Schema(many=True)
 
 api = Api(app)
 
