@@ -116,6 +116,21 @@ class RecursoUsuarios(Resource):
         usuarios = Usuario.query.all()
 
         return posts_schema.dump(usuarios)
+    def post(self):
+        post_schema = Usuario_Schema()
+
+        posts_schema = Usuario_Schema(many=True)
+        nuevo_usuario= Usuario(
+            nombre=request.json['nombre'],
+            apellido=request.json['apellido'],
+            pssw=request.json['pssw'],
+            rol=request.json['rol']
+        )
+        db.session.add(nuevo_usuario)
+
+        db.session.commit()
+
+        return post_schema.dump(nuevo_usuario)
 #Para crear un Concurso se ocupa el id del usuario y ver los usuarios
 class RecursoUsuarioConcurso(Resource):
     post_schema = Usuario_Schema()
