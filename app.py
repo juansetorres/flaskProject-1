@@ -280,13 +280,18 @@ class RecursoUnConcurso(Resource):
 
 # Recurso para manejar las participaciones de un usuario en un concurso
 class RecursoParticipacion(Resource):
+    def get(self,id_usuario,id_concurso):
+        posts_schema = Participacion_Schema()
 
+        posts_schema = Participacion_Schema(many=True)
+        patric = Participacion.query.all()
 
+        return posts_schema.dump(patric)
 
     def post(self,id_usuario,id_concurso):
-        post_schema = Concurso_Schema()
+        post_schema = Participacion_Schema()
 
-        posts_schema = Concurso_Schema(many=True)
+        posts_schema = Participacion_Schema(many=True)
         nueva_participacion = Participacion(
 
             id_usuario=id_usuario,
