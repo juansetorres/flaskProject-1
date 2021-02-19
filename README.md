@@ -43,7 +43,19 @@ Ejecutar las siguiente lineas:
 
 # Producción 
 Para desplegar la aplicación en producción, se deben seguir los siguientes pasos. 
-1. Asignar las siguientes variables de entorno.
+1. Hacer build del front, para ello entrar al cliente. 
+
+        cd client
+
+   Seguido a ello, ejecutar los scripts de react en npm.
+
+        npm run build
+
+   Y regresar de nuevo a la raiz del proyecto
+
+        cd ..
+        
+2. Asignar las siguientes variables de entorno.
    
         export FLASK_APP=app.py
 
@@ -51,13 +63,13 @@ Para desplegar la aplicación en producción, se deben seguir los siguientes pas
 
         export FLASK_ENV=development
 
-2. Instalar el servidor de aplicaciones Gunicorn
+3. Instalar el servidor de aplicaciones Gunicorn
 
         pip3 install wheel
 
         pip3 install gunicorn
 
-3. Probar que el servidor de aplicaciones Gunicorn funciones correctamente. Pare esto, se debe especificar dirección IP y puerto de escucha.
+4. Probar que el servidor de aplicaciones Gunicorn funciones correctamente. Pare esto, se debe especificar dirección IP y puerto de escucha.
 
         sudo ufw allow 4001
 
@@ -65,15 +77,15 @@ Para desplegar la aplicación en producción, se deben seguir los siguientes pas
 
     De estanera debería poder ver en consola que está se ha ejecutado correctamene. 
 
-4. Desactivar el entorno virtual.
+5. Desactivar el entorno virtual.
 
         deactivate
 
-5. Crear archivo con extención .service
+6. Crear archivo con extención .service
 
         sudo nano /etc/systemd/system/app.service
 
-6. Poner lo siguiente y remplazar las rutas que correspondan. 
+7. Poner lo siguiente y remplazar las rutas que correspondan. 
 
         [Unit]
 
@@ -99,27 +111,75 @@ Para desplegar la aplicación en producción, se deben seguir los siguientes pas
 
         WantedBy=multi-user.target
 
-7. El archivo de servicio de systemd está completo, guarde y cierre. Inicie el servicio Gunicorn creado y actívelo para que se cargue en el arranque:
+8. El archivo de servicio de systemd está completo, guarde y cierre. Inicie el servicio Gunicorn creado y actívelo para que se cargue en el arranque:
 
         sudo systemctl start app
         
         sudo systemctl enable app
         
 
-8. Verifique que el servicio está funcionando/
+9.  Verifique que el servicio está funcionando/
 
         sudo systemctl status app
 
-9. Ahora de ejecutar y comprobar el funcionamiento de Nginx
+10. Ahora de ejecutar y comprobar el funcionamiento de Nginx
 
         $ sudo apt install nginx
 
-
-Verifique el firewall de Ubuntu y habilite el puerto de escucha de Nginx para solicitudes HTTP:
+   Verifique el firewall de Ubuntu y habilite el puerto de escucha de Nginx para solicitudes HTTP:
 
         sudo ufw app list
 
         sudo ufw allow 'Nginx HTTP'
 
         sudo systemctl status nginx
+
+11. Cree un nuevo archivo de configuración en el directorio sites-available de Nginx, llamado app para que se adecue al resto de esta guía:
+
+        sudo nano /etc/nginx/sites-available/app
+
+    Ponga y remplace 'ip_servidor' por la ip de la maquina virtual. 
+
+        server {
+
+                listen 80;
+
+                server_name ip_servidor;
+
+
+                location / {
+
+                include proxy_params;
+
+                proxy_pass http://unix:/home/ubuntu/taller-api-flask-2/app.sock;
+
+                }
+        }
+
+12. Efectuar las ultimas configuraciones
+
+    Guarde y cierre el al finalizar. Habilite la configuración de Nginx que acaba de crear, vincule el archivo al directorio sites-enabled​​​:
+
+
+        sudo ln -s /etc/nginx/sites-available/app /etc/nginx/sites-enabled
+
+
+    Con el archivo en ese directorio, puede realizar una verificación en busca de errores de sintaxis:
+
+
+        sudo nginx -t
+
+
+    Si no se indican problemas, reinicie el proceso de Nginx para que lea la nueva configuración:
+
+
+        sudo systemctl restart nginx
+
+
+    Ya no se requiere acceso a través del puerto 5000, por lo que debe eliminar esta regla. Luego, podemos permitir el acceso completo al servidor de Nginx:
+
+
+        sudo ufw delete allow 4001
+
+        sudo ufw allow 'Nginx Full'
 
