@@ -1,52 +1,62 @@
 import React, { useState } from 'react';
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route, Link, useHistory } from "react-router-dom";
 
 import Login from "./components/login.component";
 import SignUp from "./components/signup.component";
-import EventosList from "./components/eventos.component"
+import ConcursosList from "./components/Concurso/concursos.component"
 
 function App() {
-
   const [token, setToken] = useState();
+  let history = useHistory();
 
-  // if(!token) {
-  //   return <Login setToken={setToken} />
-  // }
+  const logout = () => {
+    setToken(null);
+    history.push({
+      pathname: "/sign-in"
+    });
+  }
 
   return (
     <Router>
       <div className="App">
-        <nav className="navbar navbar-expand-lg navbar-light fixed-top">
+        <nav className="navbar navbar-expand-lg navbar-light sticky-top">
           <div className="container">
-            <Link className="navbar-brand" to={"/sign-in"}>Proyecto 0</Link>
+            <Link className="navbar-brand" to={"/"}>Proyecto 1</Link>
             <div className="collapse navbar-collapse" id="navbarTogglerDemo02">
-              <ul className="navbar-nav ml-auto">
-                <li className="nav-item">
-                  <Link className="nav-link" to={"/sign-in"}>Iniciar sesión</Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link" to={"/sign-up"}>Registro</Link>
-                </li>
-              </ul>
+              {token ?
+                <ul className="navbar-nav ml-auto">
+                  <li className="nav-item">
+                    <button onClick={logout}>Cerrar sesión</button>
+                  </li>
+                </ul> :
+                <ul className="navbar-nav ml-auto">
+                  <li className="nav-item">
+                    <Link className="nav-link" to={"/sign-in"}>Iniciar sesión</Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link" to={"/sign-up"}>Registro</Link>
+                  </li>
+                </ul>
+              }
             </div>
           </div>
         </nav>
 
-        <div className="outer">
-          <div className="inner">
-            <Switch>
-              <Route exact path='/' render={(props) => (
-                <Login {...props} setToken={setToken} />
-              )} />
-              <Route path="/sign-in" render={(props) => (
-                <Login {...props} setToken={setToken} />
-              )} />
-              <Route path="/sign-up" component={SignUp} />
-            </Switch>
-          </div>
-        </div>
+        <Switch>
+          <Route exact path='/' render={(props) => (
+            <Login {...props} setToken={setToken} token={token} />
+          )} />
+          <Route path="/sign-in" render={(props) => (
+            <Login {...props} setToken={setToken} token={token} />
+          )} />
+          <Route path="/sign-up" component={SignUp} />
+          <Route path="/concursos" render={(props) => (
+            <ConcursosList {...props} token={token} setToken={setToken} />
+          )} />
+        </Switch>
+
       </div>
     </Router>
   );
