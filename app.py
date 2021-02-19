@@ -38,6 +38,8 @@ class Usuario(db.Model):
 
     apellido = db.Column(db.String(50))
 
+    email = db.Column(db.String(50))
+
     pssw = db.Column(db.String(50))
 
     rol = db.Column(db.String(50))
@@ -90,6 +92,7 @@ class Usuario_Schema(ma.SQLAlchemyAutoSchema):
     id = ma.auto_field()
     nombre = ma.auto_field()
     apellido = ma.auto_field()
+    email = ma.auto_field()
     pssw = ma.auto_field()
     rol = ma.auto_field()
     concursos = ma.auto_field()
@@ -124,6 +127,7 @@ class RecursoUsuarios(Resource):
         nuevo_usuario = Usuario(
             nombre=request.json['nombre'],
             apellido=request.json['apellido'],
+            email = request.json['email'],
             pssw=request.json['pssw'],
             rol=request.json['rol']
         )
