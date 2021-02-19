@@ -29,6 +29,7 @@ api = Api(app)
 def create_tables():
     db.create_all()
 
+
 # Importing models and resources
 import models
 import resources
@@ -37,6 +38,12 @@ import resources
 api.add_resource(resources.RecursoListarConcursos, '/concursos')
 api.add_resource(resources.RecursoRegistro, '/registro')
 api.add_resource(resources.RecursoAutenticacion, '/login')
+api.add_resource(resources.RecursoListaConcursos, '/concursos')
+api.add_resource(resources.RecursoUsuarios, '/usuarios')
+api.add_resource(resources.RecursoUsuarioConcurso, '/usuarios/<int:id>/concursos')
+api.add_resource(resources.RecursoUnUsuario, '/usuarios/<int:id>')
+api.add_resource(resources.RecursoUnConcurso, '/usuarios/<int:id_admin>/concursos/<int:id>/c')
+api.add_resource(resources.RecursoParticipacion, '/usuarios/<int:id_usuario>/concursos/<int:id_concurso>/participacion')
 
 if __name__ == '__main__':
 
