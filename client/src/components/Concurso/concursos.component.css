@@ -1,0 +1,15 @@
+.contenedor {
+    margin-top: 30px;
+    display: flex;
+    flex-flow: flex-start;
+    flex-wrap: wrap;
+}
+
+.TarjetaConcurso{
+    margin-right: 30px;
+    margin-bottom: 30px;
+}
+
+.panelBotones {
+    margin-top: 30px;
+}
