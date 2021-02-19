@@ -46,5 +46,4 @@ api.add_resource(resources.RecursoUnConcurso, '/usuarios/<int:id_admin>/concurso
 api.add_resource(resources.RecursoParticipacion, '/usuarios/<int:id_usuario>/concursos/<int:id_concurso>/participacion')
 
 if __name__ == '__main__':
-
     app.run(debug=True)

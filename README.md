@@ -18,6 +18,10 @@ Para desplegar el servidor, seguir los siguientes pasos:
 
         pip3 install python-dateutil
 
+        pip3 install flask-cors
+
+        pip3 install flask-sqlalchemy marshmallow-sqlalchemy
+
 3. Ejecutar el archivo app.py
    
         python3 app.py
