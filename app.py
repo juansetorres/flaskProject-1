@@ -1,7 +1,7 @@
 from datetime import datetime
 import dateutil.parser
 
-from flask import Flask, request
+from flask import Flask, request, render_template, send_from_directory
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
@@ -10,7 +10,7 @@ from flask_jwt_extended import JWTManager
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='', static_folder="./client/build", template_folder="./client/build")
 CORS(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
@@ -33,6 +33,11 @@ def create_tables():
 # Importing models and resources
 import models
 import resources
+
+@app.route("/")
+def serve():
+    """serves React App"""
+    return render_template("index.html")
 
 # Api Endpoints
 api.add_resource(resources.RecursoListarConcursos, '/concursos')
